@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Generator Prompt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f1ec; --surface:#ffffff; --surface2:#ece7df; --ink:#1a1714; --muted:#6f675e; --line:#ddd5c9;
+  --accent:#e85d1a; --accent-ink:#fff; --accent-soft:#fdeee5; --ok:#1a7a4a; --radius:14px;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#131110; --surface:#1e1b19; --surface2:#2a2623; --ink:#f3ede6; --muted:#a89e93; --line:#3a3430; --accent-soft:#3a2317; }
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 48px}
+.intro{margin:6px 0 18px}
+.intro h1{font-size:26px;line-height:1.15;margin:0 0 6px;font-weight:800;letter-spacing:-.02em}
+.intro p{margin:0;color:var(--muted);font-size:15px;max-width:640px}
+.layout{display:grid;grid-template-columns:1fr;gap:20px}
+@media(min-width:960px){.layout{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)} .output-col{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.card h2{font-size:15px;margin:0 0 4px;font-weight:800;display:flex;align-items:center;gap:8px}
+.card h2 .num{background:var(--ink);color:var(--bg);width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+.card .hint{font-size:13px;color:var(--muted);margin:0 0 12px}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=number],select,textarea{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:inherit;font-size:15px;min-height:44px}
+textarea{min-height:76px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.btn{appearance:none;border:0;cursor:pointer;font:inherit;font-weight:700;border-radius:10px;min-height:44px;padding:10px 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn-accent{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:var(--surface2);color:var(--ink)}
+.btn-dark{background:var(--ink);color:var(--bg)}
+.btn-sm{min-height:38px;padding:7px 12px;font-size:13px;border-radius:8px}
+.btn-danger{background:transparent;color:#c0392b;border:1.5px solid var(--line)}
+.char-card{border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;background:var(--surface)}
+.char-head{display:flex;gap:14px;align-items:flex-start}
+.photo-box{flex:none;width:96px}
+.photo-preview{width:96px;height:120px;border-radius:10px;background:var(--surface2);border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;font-size:11px;color:var(--muted);padding:6px}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.photo-btn{margin-top:8px;width:96px;font-size:12px;min-height:38px;padding:6px 4px}
+.char-fields{flex:1;min-width:0}
+.char-fields label{margin-top:8px}
+.char-fields label:first-child{margin-top:0}
+.remove-row{display:flex;justify-content:flex-end;margin-top:10px}
+.scene-card{border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.scene-card h3{margin:0 0 4px;font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;min-height:38px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.loc-box{display:flex;gap:12px;align-items:flex-start;margin-top:4px}
+.loc-preview{width:132px;height:86px;flex:none;border-radius:10px;background:var(--surface2);border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center;font-size:11px;color:var(--muted);padding:6px}
+.loc-preview img{width:100%;height:100%;object-fit:cover}
+.loc-side{flex:1;min-width:0}
+.loc-side .small{margin-top:6px}
+.dlg-item{border:1.5px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
+.dlg-top{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}
+.dlg-top label{margin:0 0 4px}
+@media(max-width:520px){.dlg-top{grid-template-columns:1fr 1fr} .dlg-top .icon-btn{grid-column:2;justify-self:end}}
+.dlg-item textarea{min-height:52px;margin-top:8px}
+.expr-badge{display:inline-block;background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:999px;padding:1px 8px;font-size:12px}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px;cursor:pointer}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.output-box{background:#17130f;color:#f5ead9;border-radius:12px;padding:14px;font-family:var(--mono);font-size:12.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;max-height:520px;overflow:auto}
+@media (prefers-color-scheme: light){.output-box{background:#1c1712}}
+.scene-out{margin-bottom:18px}
+.scene-out:last-child{margin-bottom:0}
+.scene-out-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.scene-out-head strong{font-size:14px}
+.empty-out{color:var(--muted);font-size:14px;border:1.5px dashed var(--line);border-radius:12px;padding:18px;text-align:center}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:700;font-size:14px;transition:transform .25s;z-index:50;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.small{font-size:12px;color:var(--muted)}
+.file-name{font-size:11px;color:var(--muted);word-break:break-all;margin-top:4px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="intro">
+    <h1>Generator Prompt Video Sinetron AI</h1>
+    <p>Unggah foto karaktermu sendiri, tulis nama &amp; deskripsinya, unggah foto lokasi tiap adegan, lalu susun dialog lengkap dengan ekspresinya — prompt rapi siap salin langsung jadi, lengkap dengan kunci wajah, referensi lokasi, aturan dialog bergantian, dan negative prompt.</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <!-- PENGATURAN -->
+      <section class="card">
+        <h2><span class="num">1</span> Pengaturan Video</h2>
+        <p class="hint">Format bawaan mengikuti aturan videomu: vertikal 9:16, photorealistic, tanpa subtitle &amp; watermark.</p>
+        <label for="judul">Judul seri / episode</label>
+        <input type="text" id="judul" placeholder="Contoh: judul seri — Episode 1">
+        <div class="grid2">
+          <div>
+            <label for="format">Format layar</label>
+            <select id="format">
+              <option value="vertikal" selected>Vertikal 9:16 — 1080×1920</option>
+              <option value="landscape">Landscape 16:9 — 1920×1080</option>
+              <option value="persegi">Persegi 1:1 — 1080×1080</option>
+            </select>
+          </div>
+          <div>
+            <label for="durasi">Durasi per adegan</label>
+            <select id="durasi">
+              <option value="5">5 detik</option>
+              <option value="10" selected>10 detik</option>
+              <option value="15">15 detik</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label for="bahasa">Bahasa dialog</label>
+            <select id="bahasa">
+              <option value="Bahasa Indonesia" selected>Bahasa Indonesia</option>
+              <option value="Bahasa Jawa (ngoko)">Bahasa Jawa (ngoko)</option>
+              <option value="campuran Bahasa Indonesia dan Bahasa Jawa">Campuran Indonesia + Jawa</option>
+            </select>
+          </div>
+          <div>
+            <label for="gaya">Gaya visual</label>
+            <select id="gaya">
+              <option value="photorealistic, sinematik drama Indonesia, gerakan manusia realistis, ekspresi wajah natural, pencahayaan sinematik, tekstur kulit realistis" selected>Photorealistic sinematik</option>
+              <option value="photorealistic, pencahayaan natural siang hari, warna hangat, detail tajam">Natural siang hari</option>
+              <option value="photorealistic, suasana malam dramatis, pencahayaan lampu hangat, detail tajam">Malam dramatis</option>
+            </select>
+          </div>
+        </div>
+        <label for="negprompt">Negative prompt (bisa diedit)</label>
+        <textarea id="negprompt">face swap, changing face, different clothes, different age, different hairstyle, wrong speaker, swapped dialogue, extra dialogue, random talking, lip sync mismatch, duplicate characters, distorted hands, unnatural movement, cartoon, subtitles, text, watermark</textarea>
+      </section>
+
+      <!-- KARAKTER -->
+      <section class="card">
+        <h2><span class="num">2</span> Karakter Kamu</h2>
+        <p class="hint">Tidak ada karakter bawaan — ini karaktermu sendiri. Unggah foto tiap karakter (dari galeri atau kamera), lalu tulis nama dan deskripsinya. Di prompt hasil, foto itu disebut sebagai referensi wajah &amp; pakaian yang dikunci: <em>lampirkan foto yang sama saat generate video</em>.</p>
+        <div id="charList"></div>
+        <button class="btn btn-ghost" id="addChar" type="button">+ Tambah Karakter</button>
+      </section>
+
+      <!-- ADEGAN -->
+      <section class="card">
+        <h2><span class="num">3</span> Adegan &amp; Dialog</h2>
+        <p class="hint">Satu kartu = satu adegan / satu video. Unggah foto lokasinya, pilih siapa saja yang tampil, tulis aksi atau rincian multishoot-nya, lalu tambah baris dialog per pembicara — tiap baris bisa dipilih ekspresinya (senyum, marah, sedih, dan lainnya) dan ekspresi itu ikut masuk ke prompt.</p>
+        <div id="sceneList"></div>
+        <button class="btn btn-ghost" id="addScene" type="button">+ Tambah Adegan</button>
+        <div class="actions">
+          <button class="btn btn-accent" id="generate" type="button" style="flex:1">⚡ Buat Prompt</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="output-col">
+      <section class="card">
+        <h2>Hasil Prompt</h2>
+        <p class="hint">Klik “Buat Prompt”, lalu salin per adegan atau unduh semuanya. Saat generate video, lampirkan foto karakter <em>dan</em> foto lokasi yang kamu unggah di sini sebagai gambar referensi.</p>
+        <div id="output"><div class="empty-out">Belum ada prompt. Isi karakter &amp; adegan, lalu klik “Buat Prompt”.</div></div>
+        <div class="actions" id="outActions" style="display:none">
+          <button class="btn btn-dark btn-sm" id="copyAll" type="button">Salin Semua</button>
+          <button class="btn btn-ghost btn-sm" id="download" type="button">Unduh .txt</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast">Tersalin</div>
+
+<script>
+var charSeq = 0, sceneSeq = 0;
+var characters = []; // {id,name,age,role,desc,photoName}
+var scenes = [];     // {id,title,location,locationPhotoName,time,action,present:[charId],dialogues:[{speaker,expression,text}]}
+var EXPRESSIONS = ['', 'senyum', 'tertawa', 'marah', 'sedih', 'terkejut', 'cemberut', 'menangis', 'dingin', 'kesal', 'malu', 'bingung', 'serius', 'panik', 'sinis'];
+
+function el(id){ return document.getElementById(id); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function toast(msg){ var t=el('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){t.classList.remove('show')},2200); }
+
+function addCharacter(data){
+  charSeq++;
+  var c = Object.assign({id:'c'+charSeq, name:'', age:'', role:'', desc:'', photoName:''}, data||{});
+  characters.push(c); renderCharacters(); renderScenes(true);
+}
+function addScene(){
+  sceneSeq++;
+  scenes.push({id:'s'+sceneSeq, title:'', location:'', locationPhotoName:'', locationPhotoData:'', time:'Siang hari', action:'', present:[], dialogues:[{speaker:'', expression:'', text:''}]});
+  renderScenes();
+}
+
+function renderCharacters(){
+  var box = el('charList'); box.innerHTML='';
+  characters.forEach(function(c, idx){
+    var div = document.createElement('div'); div.className='char-card';
+    div.innerHTML =
+      '<div class="char-head">' +
+        '<div class="photo-box">' +
+          '<div class="photo-preview" id="prev-'+c.id+'"><span>Belum ada foto</span></div>' +
+          '<label class="btn btn-ghost photo-btn" for="file-'+c.id+'">📷 Unggah Foto</label>' +
+          '<input type="file" id="file-'+c.id+'" accept="image/*" style="display:none">' +
+          '<div class="file-name" id="fname-'+c.id+'"></div>' +
+        '</div>' +
+        '<div class="char-fields">' +
+          '<label>Nama karakter *</label><input type="text" data-f="name" data-id="'+c.id+'" value="'+esc(c.name)+'" placeholder="Tulis nama karaktermu">' +
+          '<div class="grid2"><div><label>Usia</label><input type="text" data-f="age" data-id="'+c.id+'" value="'+esc(c.age)+'" placeholder="Mis. 27 tahun"></div>' +
+          '<div><label>Peran</label><input type="text" data-f="role" data-id="'+c.id+'" value="'+esc(c.role)+'" placeholder="Mis. istri, suami, ibu"></div></div>' +
+          '<label>Deskripsi wajah &amp; pakaian</label><textarea data-f="desc" data-id="'+c.id+'" placeholder="Rambut, wajah, baju, celana, sepatu — sesuai foto yang diunggah">'+esc(c.desc)+'</textarea>' +
+        '</div>' +
+      '</div>' +
+      '<div class="remove-row"><button class="btn btn-danger btn-sm" type="button" data-del-char="'+c.id+'">Hapus karakter</button></div>';
+    box.appendChild(div);
+    var fileInput = div.querySelector('#file-'+c.id);
+    fileInput.addEventListener('change', function(){
+      var f = fileInput.files && fileInput.files[0]; if(!f) return;
+      c.photoName = f.name;
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var prev = el('prev-'+c.id);
+        prev.innerHTML = '<img src="'+e.target.result+'" alt="Foto referensi '+esc(c.name||('karakter '+(idx+1)))+'">';
+        el('fname-'+c.id).textContent = f.name;
+      };
+      reader.readAsDataURL(f);
+    });
+  });
+  box.querySelectorAll('input[data-f],textarea[data-f]').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var c = characters.find(function(x){return x.id===inp.dataset.id});
+      if(c){ c[inp.dataset.f]=inp.value; renderScenes(true); }
+    });
+  });
+  box.querySelectorAll('[data-del-char]').forEach(function(b){
+    b.addEventListener('click', function(){
+      characters = characters.filter(function(x){return x.id!==b.dataset.delChar});
+      scenes.forEach(function(s){ s.present = s.present.filter(function(p){return p!==b.dataset.delChar}); s.dialogues.forEach(function(d){ if(d.speaker===b.dataset.delChar) d.speaker=''; }); });
+      renderCharacters(); renderScenes();
+    });
+  });
+}
+
+function speakerOptions(sel){
+  var h = '<option value="">— Pilih pembicara —</option>';
+  characters.forEach(function(c){ h += '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+esc(c.name||'Karakter tanpa nama')+'</option>'; });
+  return h;
+}
+function expressionOptions(sel){
+  var h = '';
+  EXPRESSIONS.forEach(function(e){
+    var label = e === '' ? '— Ekspresi —' : e.charAt(0).toUpperCase() + e.slice(1);
+    h += '<option value="'+e+'"'+(e===sel?' selected':'')+'>'+label+'</option>';
+  });
+  return h;
+}
+
+function renderScenes(keepFocus){
+  var active = document.activeElement;
+  var box = el('sceneList'); box.innerHTML='';
+  scenes.forEach(function(s, i){
+    var div = document.createElement('div'); div.className='scene-card';
+    var chips = characters.length ? characters.map(function(c){
+      var on = s.present.indexOf(c.id)>=0;
+      return '<button type="button" class="chip'+(on?' on':'')+'" data-chip="'+s.id+':'+c.id+'">'+esc(c.name||'Tanpa nama')+'</button>';
+    }).join('') : '<span class="small">Tambah karakter dulu di bagian 2.</span>';
+    var dlgs = s.dialogues.map(function(d, di){
+      return '<div class="dlg-item">' +
+        '<div class="dlg-top">' +
+          '<div><label>Pembicara</label><select data-dlg-speaker="'+s.id+':'+di+'">'+speakerOptions(d.speaker)+'</select></div>' +
+          '<div><label>Ekspresi pas dialog</label><select data-dlg-expr="'+s.id+':'+di+'">'+expressionOptions(d.expression||'')+'</select></div>' +
+          '<button type="button" class="icon-btn" data-dlg-del="'+s.id+':'+di+'" aria-label="Hapus dialog">×</button>' +
+        '</div>' +
+        '<textarea data-dlg-text="'+s.id+':'+di+'" placeholder="Tulis kalimat dialognya persis seperti mau diucapkan">'+esc(d.text)+'</textarea>' +
+      '</div>';
+    }).join('');
+    div.innerHTML =
+      '<h3>Adegan '+(i+1)+'</h3>' +
+      '<label>Judul adegan</label><input type="text" data-sf="title" data-id="'+s.id+'" value="'+esc(s.title)+'" placeholder="Mis. Perpisahan di depan rumah">' +
+      '<div class="grid2"><div><label>Nama / deskripsi lokasi</label><input type="text" data-sf="location" data-id="'+s.id+'" value="'+esc(s.location)+'" placeholder="Mis. teras rumah desa, bale bambu pinggir sawah"></div>' +
+      '<div><label>Waktu</label><select data-sf="time" data-id="'+s.id+'">' +
+        ['Pagi hari','Siang hari','Sore hari','Malam hari'].map(function(t){return '<option'+(t===s.time?' selected':'')+'>'+t+'</option>'}).join('') +
+      '</select></div></div>' +
+      '<label>Foto lokasi adegan ini</label>' +
+      '<div class="loc-box">' +
+        '<div class="loc-preview" id="locprev-'+s.id+'"><span>Belum ada foto lokasi</span></div>' +
+        '<div class="loc-side">' +
+          '<label class="btn btn-ghost" for="locfile-'+s.id+'" style="margin:0;min-height:44px">📷 Unggah Foto Lokasi</label>' +
+          '<input type="file" id="locfile-'+s.id+'" accept="image/*" style="display:none">' +
+          '<div class="file-name" id="locfname-'+s.id+'" style="text-align:left"></div>' +
+          '<p class="small">Dari galeri / kamera. Foto ini disebut di prompt sebagai referensi latar — lampirkan file yang sama saat generate video.</p>' +
+          (s.locationPhotoName ? '<button class="btn btn-danger btn-sm" type="button" data-loc-del="'+s.id+'">Hapus foto lokasi</button>' : '') +
+        '</div>' +
+      '</div>' +
+      '<label>Karakter yang tampil (ketuk untuk pilih)</label><div class="chips">'+chips+'</div>' +
+      '<label>Aksi / rincian multishoot</label><textarea data-sf="action" data-id="'+s.id+'" placeholder="Shot 1 — medium two-shot: ...&#10;Shot 2 — close-up: ...&#10;Tulis aksi tiap shot di baris sendiri">'+esc(s.action)+'</textarea>' +
+      '<label>Dialog (bergantian, satu baris = satu pembicara + ekspresinya + kalimatnya)</label>' + dlgs +
+      '<div class="actions"><button class="btn btn-ghost btn-sm" type="button" data-dlg-add="'+s.id+'">+ Baris Dialog</button>' +
+      '<button class="btn btn-danger btn-sm" type="button" data-del-scene="'+s.id+'">Hapus adegan</button></div>';
+    box.appendChild(div);
+    // restore location photo preview + bind its upload
+    if(s.locationPhotoData){
+      var lp = div.querySelector('#locprev-'+s.id);
+      if(lp) lp.innerHTML = '<img src="'+s.locationPhotoData+'" alt="Foto referensi lokasi adegan '+(i+1)+'">';
+      var lf = div.querySelector('#locfname-'+s.id);
+      if(lf) lf.textContent = s.locationPhotoName;
+    }
+    var locInput = div.querySelector('#locfile-'+s.id);
+    if(locInput){
+      locInput.addEventListener('change', function(){
+        var f = locInput.files && locInput.files[0]; if(!f) return;
+        s.locationPhotoName = f.name;
+        var reader = new FileReader();
+        reader.onload = function(e){ s.locationPhotoData = e.target.result; renderScenes(); };
+        reader.readAsDataURL(f);
+      });
+    }
+  });
+  // bindings
+  box.querySelectorAll('[data-sf]').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var s = scenes.find(function(x){return x.id===inp.dataset.id}); if(s) s[inp.dataset.sf]=inp.value;
+    });
+    inp.addEventListener('change', function(){
+      var s = scenes.find(function(x){return x.id===inp.dataset.id}); if(s) s[inp.dataset.sf]=inp.value;
+    });
+  });
+  box.querySelectorAll('[data-chip]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var parts=b.dataset.chip.split(':'); var s=scenes.find(function(x){return x.id===parts[0]});
+      var i=s.present.indexOf(parts[1]); if(i>=0) s.present.splice(i,1); else s.present.push(parts[1]);
+      renderScenes();
+    });
+  });
+  box.querySelectorAll('[data-dlg-speaker]').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var p=sel.dataset.dlgSpeaker.split(':'); var s=scenes.find(function(x){return x.id===p[0]}); s.dialogues[+p[1]].speaker=sel.value;
+    });
+  });
+  box.querySelectorAll('[data-dlg-expr]').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var p=sel.dataset.dlgExpr.split(':'); var s=scenes.find(function(x){return x.id===p[0]}); s.dialogues[+p[1]].expression=sel.value;
+    });
+  });
+  box.querySelectorAll('[data-loc-del]').forEach(function(b){
+    b.addEventListener('click', function(){ var s=scenes.find(function(x){return x.id===b.dataset.locDel}); s.locationPhotoName=''; s.locationPhotoData=''; renderScenes(); });
+  });
+  box.querySelectorAll('[data-dlg-text]').forEach(function(t){
+    t.addEventListener('input', function(){
+      var p=t.dataset.dlgText.split(':'); var s=scenes.find(function(x){return x.id===p[0]}); s.dialogues[+p[1]].text=t.value;
+    });
+  });
+  box.querySelectorAll('[data-dlg-add]').forEach(function(b){
+    b.addEventListener('click', function(){ var s=scenes.find(function(x){return x.id===b.dataset.dlgAdd}); s.dialogues.push({speaker:'',expression:'',text:''}); renderScenes(); });
+  });
+  box.querySelectorAll('[data-dlg-del]').forEach(function(b){
+    b.addEventListener('click', function(){ var p=b.dataset.dlgDel.split(':'); var s=scenes.find(function(x){return x.id===p[0]}); s.dialogues.splice(+p[1],1); if(!s.dialogues.length) s.dialogues.push({speaker:'',expression:'',text:''}); renderScenes(); });
+  });
+  box.querySelectorAll('[data-del-scene]').forEach(function(b){
+    b.addEventListener('click', function(){ scenes=scenes.filter(function(x){return x.id!==b.dataset.delScene}); renderScenes(); });
+  });
+  if(keepFocus && active && active.dataset && active.dataset.f){
+    var again = box; // focus stays in char list; nothing to restore here
+  }
+}
+
+function charName(id){ var c=characters.find(function(x){return x.id===id}); return c ? (c.name||'Karakter').toUpperCase() : 'KARAKTER'; }
+
+function buildPrompt(s, idx){
+  var fmt = el('format').value;
+  var fmtLine = fmt==='vertikal' ? 'Video vertikal 9:16, 1080x1920' : (fmt==='landscape' ? 'Video landscape 16:9, 1920x1080' : 'Video persegi 1:1, 1080x1080');
+  var dur = el('durasi').value;
+  var lines = [];
+  lines.push(fmtLine + ', ' + dur + ' detik, 30fps, ' + el('gaya').value + ', no character morphing, consistent face, consistent wardrobe, natural lip sync.');
+  var judul = el('judul').value.trim();
+  if(judul) lines.push('Seri: ' + judul);
+  lines.push('Adegan ' + (idx+1) + (s.title ? ' — ' + s.title : '') + '. ' + s.time + '.');
+  // characters present: chosen chips, else dialogue speakers, else all
+  var presentIds = s.present.slice();
+  if(!presentIds.length){ s.dialogues.forEach(function(d){ if(d.speaker && presentIds.indexOf(d.speaker)<0) presentIds.push(d.speaker); }); }
+  if(!presentIds.length){ presentIds = characters.map(function(c){return c.id}); }
+  if(presentIds.length){
+    lines.push('');
+    lines.push('KARAKTER (kunci wajah & pakaian persis seperti foto referensi yang dilampirkan, jangan berubah di sepanjang adegan):');
+    presentIds.forEach(function(id){
+      var c = characters.find(function(x){return x.id===id}); if(!c) return;
+      var bits = [];
+      if(c.age) bits.push(c.age); if(c.role) bits.push(c.role);
+      var head = (c.name||'Karakter').toUpperCase() + (bits.length ? ' ('+bits.join(', ')+')' : '');
+      var desc = c.desc ? ': ' + c.desc : '';
+      var foto = c.photoName ? ' [Foto referensi: ' + c.photoName + ']' : ' [pakai foto referensi yang dilampirkan untuk karakter ini]';
+      lines.push('- ' + head + desc + foto);
+    });
+  }
+  if(s.location || s.locationPhotoName){
+    lines.push('');
+    var locLine = 'LOKASI: ' + (s.location || 'sesuai foto referensi lokasi') + ', ' + s.time.toLowerCase() + '.';
+    if(s.locationPhotoName) locLine += ' Gunakan latar, bangunan, dan suasana persis seperti foto referensi lokasi yang dilampirkan, jangan diganti. [Foto referensi lokasi: ' + s.locationPhotoName + ']';
+    else locLine += ' [Lampirkan foto referensi lokasi untuk adegan ini bila ada]';
+    lines.push(locLine);
+  }
+  if(s.action.trim()){ lines.push(''); lines.push('AKSI / MULTISHOOT:'); lines.push(s.action.trim()); }
+  var dlgs = s.dialogues.filter(function(d){ return d.text.trim(); });
+  if(dlgs.length){
+    lines.push('');
+    lines.push('DIALOG — bahasa: ' + el('bahasa').value + '. Bergantian, hanya karakter yang namanya disebut yang bicara, dengan ekspresi wajah sesuai yang tertulis di barisnya; karakter lain diam, mulut tertutup tidak bergerak, suara tidak bersamaan:');
+    dlgs.forEach(function(d){
+      var expr = d.expression ? ' (ekspresi: ' + d.expression + ')' : '';
+      lines.push(charName(d.speaker) + expr + ': "' + d.text.trim() + '"');
+    });
+  }
+  lines.push('');
+  lines.push('Negative prompt: ' + el('negprompt').value.trim());
+  return lines.join('\n');
+}
+
+var lastPrompts = [];
+el('generate').addEventListener('click', function(){
+  if(!characters.some(function(c){return c.name.trim()})){ toast('Isi dulu minimal satu nama karakter'); return; }
+  if(!scenes.length){ toast('Tambah minimal satu adegan'); return; }
+  lastPrompts = scenes.map(function(s,i){ return buildPrompt(s,i); });
+  var out = el('output'); out.innerHTML='';
+  lastPrompts.forEach(function(p,i){
+    var wrap = document.createElement('div'); wrap.className='scene-out';
+    wrap.innerHTML = '<div class="scene-out-head"><strong>Adegan '+(i+1)+'</strong><button class="btn btn-accent btn-sm" type="button">Salin Prompt</button></div>';
+    var pre = document.createElement('div'); pre.className='output-box'; pre.textContent = p;
+    wrap.appendChild(pre);
+    wrap.querySelector('button').addEventListener('click', function(){ copyText(p); });
+    out.appendChild(wrap);
+  });
+  el('outActions').style.display='flex';
+  out.scrollIntoView({behavior:'smooth', block:'start'});
+  toast('Prompt jadi — ' + lastPrompts.length + ' adegan');
+});
+function copyText(t){
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(function(){toast('Prompt tersalin')}, function(){fallbackCopy(t)}); }
+  else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('Prompt tersalin'); }catch(e){ toast('Gagal menyalin — salin manual dari kotak hasil'); }
+  document.body.removeChild(ta);
+}
+el('copyAll').addEventListener('click', function(){ if(lastPrompts.length) copyText(lastPrompts.join('\n\n====================\n\n')); });
+el('download').addEventListener('click', function(){
+  if(!lastPrompts.length) return;
+  var name = (el('judul').value.trim() || 'prompt-sinetron').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-').toLowerCase() + '.txt';
+  var blob = new Blob([lastPrompts.join('\n\n====================\n\n')], {type:'text/plain;charset=utf-8'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+});
+el('addChar').addEventListener('click', function(){ addCharacter(); });
+el('addScene').addEventListener('click', function(){ addScene(); });
+
+// start: two empty character slots + one scene, no prefilled names
+addCharacter(); addCharacter(); addScene();
+</script>
+</body>
+</html>
