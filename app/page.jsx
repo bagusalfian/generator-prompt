@@ -624,6 +624,27 @@ export default function Home() {
                     <span className="small">Tambah karakter dulu di bagian 2.</span>
                   )}
                 </div>
+                {(() => {
+                  const speakers = [...new Set(s.dialogues.map((d) => d.speaker).filter(Boolean))];
+                  const silent = s.present.filter((id) => !speakers.includes(id));
+                  if (!silent.length) return null;
+                  return (
+                    <div
+                      className="small"
+                      style={{
+                        marginTop: 8,
+                        padding: '8px 10px',
+                        borderRadius: 8,
+                        background: '#fff4e0',
+                        border: '1px solid #e8b25a',
+                      }}
+                    >
+                      🤫 Diam di adegan ini (tampil tapi tidak disebut di dialog, jadi tidak boleh
+                      bicara):{' '}
+                      <b>{silent.map((id) => charNameById(id)).join(', ')}</b>
+                    </div>
+                  );
+                })()}
                 <label>Aksi / rincian multishoot</label>
                 <textarea
                   value={s.action}
