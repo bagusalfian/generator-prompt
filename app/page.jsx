@@ -7,6 +7,8 @@ import {
   DEFAULT_GAYA,
   buildAllPrompts,
   downloadFileName,
+  checkSceneDuration,
+  estimateLineSeconds,
 } from '../lib/prompt';
 import {
   loadHistory,
@@ -254,12 +256,35 @@ export default function Home() {
       toast('Tambah minimal satu adegan');
       return;
     }
+    // Deteksi dialog melebihi durasi: baris yang kepanjangan TIDAK
+    // dimasukkan ke prompt hasil (lihat lib/prompt.js) — beri tahu user.
+    const overScenes = scenes
+      .map((s, i) => ({ i, check: checkSceneDuration(settings, s) }))
+      .filter((x) => x.check.over);
     const result = buildAllPrompts(settings, characters, scenes);
     setPrompts(result);
+    if (overScenes.length) {
+      toast(
+        'Awas: ' +
+          overScenes
+            .map(
+              (x) =>
+                'Adegan ' +
+                (x.i + 1) +
+                ' dialog ' +
+                x.check.totalSeconds.toFixed(1) +
+                ' dtk (limit ' +
+                x.check.limit +
+                ' dtk) — dialog kepanjangan tidak ikut di hasil',
+            )
+            .join('; '),
+      );
+    } else {
+      toast('Prompt jadi — ' + result.length + ' adegan');
+    }
     setHistory((prev) =>
       addHistoryEntry(prev, makeHistoryEntry({ judul: settings.judul, prompts: result })),
     );
-    toast('Prompt jadi — ' + result.length + ' adegan');
     setTimeout(() => {
       if (outputRef.current) outputRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
@@ -650,11 +675,67 @@ export default function Home() {
                       placeholder="Tulis kalimat dialognya persis seperti mau diucapkan"
                       onChange={(e) => updateDialogue(s.id, di, 'text', e.target.value)}
                     />
+                    {d.text.trim() && (
+                      <span className="small" style={{ display: 'block', marginTop: 4 }}>
+                        ≈ {estimateLineSeconds(d.text).toFixed(1)} detik bicara
+                      </span>
+                    )}
                     {d.expression && (
                       <span className="expr-badge">Ekspresi: {d.expression}</span>
                     )}
                   </div>
                 ))}
+                {(() => {
+                  const dc = checkSceneDuration(settings, s);
+                  const pct = Math.min(100, Math.round((dc.totalSeconds / dc.limit) * 100));
+                  return (
+                    <div
+                      className="durasi-box"
+                      style={{
+                        marginTop: 12,
+                        padding: '10px 12px',
+                        borderRadius: 10,
+                        background: dc.over ? '#ffe5e5' : '#eafbe7',
+                        border: '1px solid ' + (dc.over ? '#e05252' : '#7cc47a'),
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, fontSize: 14 }}>
+                        ⏱ Perkiraan durasi dialog: {dc.totalSeconds.toFixed(1)} detik / {dc.limit} detik
+                        {dc.over
+                          ? ' — KELEBIHAN ' + dc.overSeconds.toFixed(1) + ' detik!'
+                          : ' — muat ✓'}
+                      </div>
+                      <div
+                        style={{
+                          height: 8,
+                          borderRadius: 4,
+                          background: '#fff',
+                          marginTop: 8,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: pct + '%',
+                            height: '100%',
+                            background: dc.over ? '#e05252' : '#4caf50',
+                          }}
+                        />
+                      </div>
+                      {dc.over && (
+                        <div style={{ marginTop: 8, fontSize: 13, color: '#a11' }}>
+                          Dialog kepanjangan tidak akan ikut di hasil prompt (dan tidak akan sempat
+                          terucap di video). Pendekkan dialog di atas supaya semua muat di {dc.limit}{' '}
+                          detik.
+                        </div>
+                      )}
+                      <div style={{ marginTop: 6, fontSize: 12, color: '#555' }}>
+                        Patokan: ±2,5 kata/detik. 5 detik ≈ 12 kata, 10 detik ≈ 25 kata, 15 detik ≈
+                        37 kata.
+                      </div>
+                    </div>
+                  );
+                })()}
                 <div className="actions">
                   <button className="btn btn-ghost btn-sm" type="button" onClick={() => addDialogue(s.id)}>
                     + Baris Dialog
