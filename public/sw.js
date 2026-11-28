@@ -1,4 +1,4 @@
-const CACHE = 'generator-prompt-v1';
+const CACHE = 'generator-prompt-v2';
 const ASSETS = ['/', '/manifest.webmanifest', '/icon.svg', '/icon-maskable.svg'];
 
 self.addEventListener('install', (event) => {

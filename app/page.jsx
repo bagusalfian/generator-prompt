@@ -76,6 +76,7 @@ export default function Home() {
   const [toastMsg, setToastMsg] = useState('');
   const [toastKey, setToastKey] = useState(0);
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [showInfo, setShowInfo] = useState(false);
   const [justAddedChar, setJustAddedChar] = useState(null);
   const [justAddedScene, setJustAddedScene] = useState(null);
   const outputRef = useRef(null);
@@ -95,6 +96,16 @@ export default function Home() {
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
     return () => window.removeEventListener('beforeinstallprompt', onBeforeInstall);
   }, []);
+
+  // Tutup popup Informasi dengan tombol Escape.
+  useEffect(() => {
+    if (!showInfo) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setShowInfo(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showInfo]);
 
   // Simpan riwayat ke localStorage setiap kali berubah (setelah data awal dimuat).
   useEffect(() => {
@@ -343,6 +354,16 @@ export default function Home() {
   return (
     <div className="wrap">
       <header className="intro">
+        <button
+          className="info-btn"
+          type="button"
+          aria-label="Informasi"
+          aria-haspopup="dialog"
+          aria-expanded={showInfo}
+          onClick={() => setShowInfo(true)}
+        >
+          ⋮
+        </button>
         <span className="brand">✦ Generator Prompt Sinetron AI</span>
         <h1>Aplikasi Generator by Bagus Alfiansyah</h1>
         <p>
@@ -793,7 +814,7 @@ export default function Home() {
               referensi.
             </p>
             {prompts.length ? (
-              <div>
+              <div key={prompts.length} className="fade-swap">
                 {prompts.map((p, i) => (
                   <div key={i} className="scene-out anim-fade">
                     <div className="scene-out-head">
@@ -874,10 +895,47 @@ export default function Home() {
         </div>
       </div>
 
-      <p className="footer">
+      <p className="footer anim-in" style={{ animationDelay: '0.38s' }}>
         Aplikasi Generator by <b>Bagus Alfiansyah</b> — prompt sinetron AI, karakter &amp; lokasi dari
         fotomu sendiri.
       </p>
+
+      {showInfo && (
+        <div className="info-overlay" onClick={() => setShowInfo(false)}>
+          <div
+            className="info-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Informasi"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="info-close"
+              type="button"
+              aria-label="Tutup informasi"
+              onClick={() => setShowInfo(false)}
+            >
+              ✕
+            </button>
+            <span className="brand" style={{ marginBottom: 8 }}>
+              ✦ Informasi
+            </span>
+            <h2>Aplikasi Generator by Bagus Alfiansyah</h2>
+            <p>
+              Pembuat prompt video sinetron AI — unggah foto karakter dan lokasi, susun dialog,
+              prompt rapi siap salin.
+            </p>
+            <div className="info-row">
+              <span>Versi</span>
+              <b>1.0</b>
+            </div>
+            <div className="info-row">
+              <span>Dibuat oleh</span>
+              <b>Nggu You (Bagus Alfiansyah)</b>
+            </div>
+          </div>
+        </div>
+      )}
 
       {toastMsg && (
         <div key={toastKey} className="toast show">
