@@ -340,7 +340,7 @@ input:focus, select:focus, textarea:focus {
 .history-item .h-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .empty-history { color: var(--muted); font-size: 13px; text-align: center; padding: 10px 0; }
 
-/* ---------- Tombol garis tiga + popup Informasi ---------- */
+/* ---------- Tombol titik tiga + popup Informasi ---------- */
 .info-btn {
   position: absolute;
   top: 0;
